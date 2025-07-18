@@ -3,16 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Toaster } from "@/components/ui/toaster";
+import QuickOrderForm from "@/components/QuickOrderForm";
+import { useState } from "react";
 
 const Index = () => {
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [selectedPackageId, setSelectedPackageId] = useState<string>('');
+
   const packages = [
     {
+      id: "basic",
       name: "Начальный",
       gb: "1",
       price: "50",
       features: ["Высокая скорость", "Без ограничений", "Мгновенная активация"]
     },
     {
+      id: "popular",
       name: "Популярный",
       gb: "5",
       price: "200",
@@ -20,12 +29,18 @@ const Index = () => {
       popular: true
     },
     {
+      id: "premium",
       name: "Максимальный",
       gb: "10",
       price: "350",
       features: ["Максимальный объем", "VIP поддержка", "Бонусные гигабайты"]
     }
   ];
+
+  const handleOrderClick = (packageId: string) => {
+    setSelectedPackageId(packageId);
+    setIsOrderModalOpen(true);
+  };
 
   const paymentMethods = [
     { name: "Банковская карта", icon: "CreditCard", description: "Visa, MasterCard, МИР" },
@@ -72,10 +87,23 @@ const Index = () => {
               Быстро, удобно, выгодно! Пополни интернет-трафик за пару кликов
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Button size="lg" className="bg-white text-[#FF6B35] hover:bg-gray-100 hover-scale">
-                Купить сейчас
-                <Icon name="ArrowRight" size={20} className="ml-2" />
-              </Button>
+              <Dialog open={isOrderModalOpen} onOpenChange={setIsOrderModalOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="bg-white text-[#FF6B35] hover:bg-gray-100 hover-scale">
+                    Купить сейчас
+                    <Icon name="ArrowRight" size={20} className="ml-2" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl">Быстрый заказ гигабайт</DialogTitle>
+                  </DialogHeader>
+                  <QuickOrderForm 
+                    preSelectedPackage={selectedPackageId}
+                    onClose={() => setIsOrderModalOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                 Узнать больше
               </Button>
@@ -124,11 +152,14 @@ const Index = () => {
                       <span className="text-gray-700">{feature}</span>
                     </div>
                   ))}
-                  <Button className={`w-full mt-6 ${
-                    pkg.popular 
-                      ? 'bg-[#FF6B35] hover:bg-[#e55a2b] text-white' 
-                      : 'bg-[#2563EB] hover:bg-[#1e40af] text-white'
-                  }`}>
+                  <Button 
+                    className={`w-full mt-6 ${
+                      pkg.popular 
+                        ? 'bg-[#FF6B35] hover:bg-[#e55a2b] text-white' 
+                        : 'bg-[#2563EB] hover:bg-[#1e40af] text-white'
+                    }`}
+                    onClick={() => handleOrderClick(pkg.id)}
+                  >
                     Купить пакет
                     <Icon name="ShoppingCart" size={16} className="ml-2" />
                   </Button>
@@ -252,6 +283,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      <Toaster />
     </div>
   );
 };
